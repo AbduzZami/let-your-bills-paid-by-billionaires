@@ -315,7 +315,7 @@ dialog::backdrop{background:rgba(10,9,7,.7);backdrop-filter:blur(6px)}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -327,6 +327,12 @@ const firebaseConfig = {
   appId: "1:775475113909:web:9d491ce588e6f4271c73fc"
 };
 
+// Mobile browsers break the popup flow (it opens another tab). Use same-tab redirect there,
+// with authDomain = this site (proxied to Firebase via the _redirects file) so it works with
+// third-party storage blocking.
+const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
+const onRealHost = location.protocol === "https:" && !/firebaseapp\.com$|web\.app$/.test(location.hostname);
+if (isMobile && onRealHost) firebaseConfig.authDomain = location.hostname;
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -358,13 +364,17 @@ $("loginBtn").onclick = async () => {
   signingIn = true; $("loginBtn").disabled = true;
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
-  try { await signInWithPopup(auth, provider); }
+  try {
+    if (isMobile) { await signInWithRedirect(auth, provider); return; }
+    await signInWithPopup(auth, provider);
+  }
   catch (e) {
     if (e.code === "auth/popup-blocked") return signInWithRedirect(auth, provider);
     if (e.code !== "auth/cancelled-popup-request" && e.code !== "auth/popup-closed-by-user") toast(e.code + ": " + e.message);
   }
   signingIn = false; $("loginBtn").disabled = false;
 };
+getRedirectResult(auth).catch(e => toast(e.code + ": " + e.message));
 $("logoutBtn").onclick = () => signOut(auth);
 
 onAuthStateChanged(auth, u => {
