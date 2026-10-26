@@ -21,6 +21,17 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['status', 'paidBy', 'paidByName', 'paidAt', 'txnRef']);
 
+      // Owner may edit their own bill while it is unpaid
+      allow update: if request.auth != null
+        && resource.data.ownerId == request.auth.uid
+        && resource.data.status == 'open'
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['title', 'amount', 'currency', 'description', 'paymentInfo', 'proofData', 'updatedAt'])
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0
+        && request.resource.data.proofData.matches('data:image/.*')
+        && request.resource.data.proofData.size() < 800000;
+
       allow delete: if request.auth != null
         && resource.data.ownerId == request.auth.uid;
     }

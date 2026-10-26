@@ -161,7 +161,7 @@ main{max-width:1180px;margin:0 auto;padding:clamp(20px,4vw,44px) clamp(16px,4vw,
 @media(max-width:640px){.fab{display:inline-flex}.newtop{display:none}}
 
 /* ---------- Dialogs ---------- */
-dialog{border:0;padding:0;border-radius:22px;background:var(--paper);color:var(--ink);width:min(560px,94vw);max-height:92vh;box-shadow:0 40px 100px rgba(0,0,0,.5)}
+dialog{border:0;padding:0;border-radius:22px;background:var(--paper);color:var(--ink);width:min(560px,94vw);max-height:92vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,.5)}
 dialog[open]{animation:pop .22s ease-out}
 @keyframes pop{from{opacity:0;transform:translateY(16px) scale(.98)}}
 dialog::backdrop{background:rgba(10,9,7,.7);backdrop-filter:blur(6px)}
@@ -265,8 +265,8 @@ dialog::backdrop{background:rgba(10,9,7,.7);backdrop-filter:blur(6px)}
 <!-- Upload dialog -->
 <dialog id="billDlg">
   <form id="billForm" method="dialog" class="dlg">
-    <h3>Post a bill</h3>
-    <div class="sub">Anything counts. Add a clear photo of the receipt.</div>
+    <h3 id="billTitle">Post a bill</h3>
+    <div class="sub" id="billSub">Anything counts. Add a clear photo of the receipt.</div>
     <label>What was it?</label>
     <input name="title" required maxlength="100" placeholder="Orange juice, RTX 4070, bus ticket…">
     <div class="two">
@@ -428,6 +428,7 @@ function render() {
       ${paid ? `<div class="paidby">💸 Paid by <b>${esc(b.paidByName)}</b>${b.txnRef ? " · Ref " + esc(b.txnRef) : ""}</div>` : ""}
       <div class="acts">
         ${!paid && !mine ? `<button class="btn btn-gold" data-pay="${esc(b.id)}">Pay this bill</button>` : ""}
+        ${mine && !paid ? `<button class="btn btn-line btn-sm" data-edit="${esc(b.id)}">✎ Edit</button>` : ""}
         ${mine ? `<button class="btn btn-danger btn-sm" data-del="${esc(b.id)}">Delete</button>` : ""}
       </div>
     </article>`;
@@ -438,6 +439,8 @@ $("list").onclick = async e => {
   const t = e.target;
   const prf = t.closest("[data-proof]"), pay = t.closest("[data-pay]"), del = t.closest("[data-del]"), cp = t.closest("[data-copy]");
   const find = id => bills.find(x => x.id === id);
+  const ed = t.closest("[data-edit]");
+  if (ed) { const b = find(ed.dataset.edit); if (b) openEdit(b); }
   if (prf) { const b = find(prf.dataset.proof); if (b) { $("proofImg").src = b.proofData; $("proofDlg").showModal(); } }
   if (cp) {
     const b = find(cp.dataset.copy);
@@ -477,7 +480,21 @@ async function compress(file) {
 }
 
 /* ---------- Upload bill ---------- */
-const openNew = () => { $("billForm").reset(); resetDrop(); $("billErr").textContent = ""; $("billDlg").showModal(); };
+let editId = null;
+const setMode = edit => {
+  $("billTitle").textContent = edit ? "Edit bill" : "Post a bill";
+  $("billSub").textContent = edit ? "Update the details. Leave the photo as is to keep the current proof." : "Anything counts. Add a clear photo of the receipt.";
+  $("billSubmit").textContent = edit ? "Save changes" : "Post bill";
+  $("proofInput").required = !edit;
+};
+const openNew = () => { editId = null; setMode(false); $("billForm").reset(); resetDrop(); $("billErr").textContent = ""; $("billDlg").showModal(); };
+const openEdit = b => {
+  editId = b.id; setMode(true);
+  const f = $("billForm"); f.reset(); $("billErr").textContent = "";
+  for (const k of ["title","amount","currency","description","paymentInfo"]) f.elements[k].value = b[k] ?? "";
+  $("dropInner").innerHTML = `<img src="${esc(b.proofData)}" alt=""><div class="tx">Current proof · click to replace</div>`;
+  $("billDlg").showModal();
+};
 $("newBtn").onclick = openNew; $("fab").onclick = openNew;
 $("billCancel").onclick = () => $("billDlg").close();
 $("payCancel").onclick = () => $("payDlg").close();
@@ -496,13 +513,25 @@ $("billForm").onsubmit = async e => {
   e.preventDefault();
   const f = new FormData(e.target), file = f.get("proof"), err = $("billErr");
   err.textContent = "";
-  if (!file || !file.size) return err.textContent = "Proof is required.";
-  if (!file.type.startsWith("image/")) return err.textContent = "Proof must be an image.";
+  const hasFile = file && file.size;
+  if (!hasFile && !editId) return err.textContent = "Proof is required.";
+  if (hasFile && !file.type.startsWith("image/")) return err.textContent = "Proof must be an image.";
   const amount = parseFloat(f.get("amount"));
   if (!(amount > 0)) return err.textContent = "Enter a valid amount.";
 
-  const btn = $("billSubmit"); btn.disabled = true; btn.textContent = "Posting…";
+  const btn = $("billSubmit"), label = btn.textContent; btn.disabled = true; btn.textContent = editId ? "Saving…" : "Posting…";
   try {
+    if (editId) {
+      const upd = {
+        title: f.get("title").trim(), amount, currency: f.get("currency"),
+        description: f.get("description").trim(), paymentInfo: f.get("paymentInfo").trim(),
+        updatedAt: serverTimestamp()
+      };
+      if (hasFile) upd.proofData = await compress(file);
+      await updateDoc(doc(db, "bills", editId), upd);
+      $("billDlg").close(); toast("Bill updated ✓");
+      btn.disabled = false; btn.textContent = label; return;
+    }
     const proofData = await compress(file);
     await addDoc(collection(db, "bills"), {
       title: f.get("title").trim(),
@@ -519,7 +548,7 @@ $("billForm").onsubmit = async e => {
     });
     $("billDlg").close(); toast("Bill posted 🎉");
   } catch (ex) { err.textContent = ex.message; }
-  btn.disabled = false; btn.textContent = "Post bill";
+  btn.disabled = false; btn.textContent = label;
 };
 
 /* ---------- Pay bill ---------- */
