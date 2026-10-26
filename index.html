@@ -4,133 +4,312 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Let Your Bills Paid by Billionaires</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#f6f7fb;--card:#fff;--text:#1b1f2a;--muted:#6b7280;--line:#e5e7eb;--brand:#4f46e5;--ok:#16a34a;--warn:#d97706;--err:#dc2626}
-  @media(prefers-color-scheme:dark){:root{--bg:#0f1117;--card:#181b24;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3c}}
-  *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
-  header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-  header h1{font-size:clamp(14px,4vw,20px);margin:0}
-  .user{display:flex;align-items:center;gap:10px;font-size:14px}
-  .user img{width:30px;height:30px;border-radius:50%}
-  main{max-width:860px;margin:0 auto;padding:20px}
-  button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:9px 14px;background:var(--brand);color:#fff}
-  button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
-  button.danger{background:var(--err)}
-  button.ok{background:var(--ok)}
-  button:disabled{opacity:.6;cursor:not-allowed}
-  .login{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
-  .login h2{font-size:30px;margin:0}
-  .login p{color:var(--muted);max-width:420px;margin:0}
-  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
-  .tabs{display:flex;gap:6px}
-  .tabs button{background:transparent;color:var(--muted);border:1px solid var(--line)}
-  .tabs button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
-  .row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-  .title{font-weight:600;font-size:17px;margin:0 0 4px}
-  .meta{color:var(--muted);font-size:13px}
-  .amount{font-size:20px;font-weight:700;white-space:nowrap}
-  .badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;color:#fff;margin-left:6px;vertical-align:middle}
-  .badge.open{background:var(--warn)} .badge.paid{background:var(--ok)}
-  .desc{margin:10px 0;white-space:pre-wrap}
-  .pay{background:var(--bg);border:1px dashed var(--line);border-radius:8px;padding:10px;margin:10px 0;font-size:14px;white-space:pre-wrap}
-  .pay b{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
-  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-  .actions a{text-decoration:none}
-  .empty{text-align:center;color:var(--muted);padding:40px 0}
-  dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);width:min(520px,94vw);padding:20px}
-  dialog::backdrop{background:rgba(0,0,0,.5)}
-  label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
-  input,textarea,select{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text)}
-  textarea{min-height:70px;resize:vertical}
-  .two{display:grid;grid-template-columns:2fr 1fr;gap:10px}
-  .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
-  .err{color:var(--err);font-size:13px;margin-top:8px;min-height:16px}
-  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:8px;display:none;z-index:20}
-  .hidden{display:none!important}
+:root{
+  --bg:#0d0c0a; --bg2:#16140f; --line:#2b271e; --text:#f3eee2; --muted:#a39b88;
+  --gold:#e3b84f; --gold2:#f6dc8c; --gold3:#a8801f;
+  --paper:#fffaf0; --ink:#1c1a15; --ink2:#6d6555; --rule:#e7dcc4;
+  --green:#2f9e6a; --red:#d4513b;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f4efe3;--bg2:#ebe4d3;--line:#d9cfb8;--text:#1c1a15;--muted:#6d6555}
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:radial-gradient(1200px 600px at 85% -10%,rgba(227,184,79,.13),transparent 60%),
+                   radial-gradient(900px 500px at -10% 110%,rgba(227,184,79,.08),transparent 60%);
+  background-attachment:fixed}
+button{font:inherit;cursor:pointer;border:0}
+.hidden{display:none!important}
+
+/* ---------- Header ---------- */
+header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px clamp(16px,4vw,40px);backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 78%,transparent);
+  border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.coin{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-weight:900;color:#3a2a05;
+  background:radial-gradient(circle at 30% 30%,var(--gold2),var(--gold) 55%,var(--gold3));box-shadow:0 0 0 2px rgba(227,184,79,.25),0 4px 14px rgba(227,184,79,.35)}
+.brand h1{font-family:var(--serif);font-weight:700;font-size:clamp(15px,3.6vw,21px);margin:0;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand h1 em{font-style:italic;color:var(--gold)}
+.user{display:flex;align-items:center;gap:10px}
+.user img{width:34px;height:34px;border-radius:50%;border:2px solid var(--gold)}
+.user .nm{font-size:14px;font-weight:500}
+@media(max-width:640px){.user .nm{display:none}}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;transition:transform .15s,box-shadow .15s,background .15s}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-gold{color:#2b1f02;background:linear-gradient(180deg,var(--gold2),var(--gold));box-shadow:0 6px 20px rgba(227,184,79,.3),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-gold:hover{box-shadow:0 8px 28px rgba(227,184,79,.45),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn-ghost:hover{border-color:var(--gold)}
+.btn-ink{background:var(--ink);color:var(--paper)}
+.btn-ink:hover{background:#000}
+.btn-line{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+.btn-line:hover{border-color:var(--ink)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid color-mix(in srgb,var(--red) 35%,transparent)}
+.btn-danger:hover{background:color-mix(in srgb,var(--red) 10%,transparent)}
+.btn-google{background:#fff;color:#1f1f1f;padding:14px 24px;font-size:15px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.btn-google:hover{transform:translateY(-1px)}
+.btn-sm{padding:8px 14px;font-size:13px}
+
+main{max-width:1180px;margin:0 auto;padding:clamp(20px,4vw,44px) clamp(16px,4vw,40px) 80px}
+
+/* ---------- Login hero ---------- */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;min-height:calc(100vh - 160px)}
+@media(max-width:860px){.hero{grid-template-columns:1fr;text-align:center}.hero .stack{display:none}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);
+  border:1px solid color-mix(in srgb,var(--gold) 40%,transparent);padding:6px 12px;border-radius:999px;background:rgba(227,184,79,.06)}
+.hero h2{font-family:var(--serif);font-weight:900;font-size:clamp(40px,7vw,78px);line-height:.98;letter-spacing:-.03em;margin:22px 0 18px}
+.hero h2 .g{background:linear-gradient(100deg,var(--gold2),var(--gold) 40%,var(--gold3));-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic}
+.hero p{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.6;max-width:520px;margin:0 0 32px}
+@media(max-width:860px){.hero p{margin-inline:auto}}
+.hero .fine{font-size:13px;color:var(--muted);margin-top:16px}
+.ticker{display:flex;gap:10px;flex-wrap:wrap;margin-top:36px}
+@media(max-width:860px){.ticker{justify-content:center}}
+.ticker span{font-family:var(--mono);font-size:12px;padding:6px 10px;border-radius:8px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}
+.ticker b{color:var(--text);font-weight:700}
+
+.stack{position:relative;height:460px}
+.mini{position:absolute;width:250px;padding:22px 22px 26px;background:var(--paper);color:var(--ink);border-radius:6px 6px 0 0;
+  box-shadow:0 30px 60px rgba(0,0,0,.35);font-family:var(--mono);font-size:12px}
+.mini h4{font-family:var(--serif);font-size:20px;margin:0 0 4px}
+.mini .r{display:flex;justify-content:space-between;border-top:1px dashed var(--rule);padding-top:10px;margin-top:12px;font-weight:700;font-size:16px}
+.mini:nth-child(1){left:6%;top:40px;transform:rotate(-8deg)}
+.mini:nth-child(2){left:34%;top:120px;transform:rotate(5deg)}
+.mini:nth-child(3){left:12%;top:225px;transform:rotate(-2deg)}
+.float{animation:float 6s ease-in-out infinite}
+.mini:nth-child(2).float{animation-delay:-2s}.mini:nth-child(3).float{animation-delay:-4s}
+@keyframes float{50%{translate:0 -10px}}
+
+/* zig-zag receipt edge */
+.zig{position:relative}
+.zig::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:10px;
+  background:linear-gradient(135deg,var(--paper) 50%,transparent 50%) 0 0/14px 14px repeat-x,
+             linear-gradient(225deg,var(--paper) 50%,transparent 50%) 0 0/14px 14px repeat-x}
+
+.stamp{position:absolute;font-family:var(--serif);font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--green);
+  border:3px solid var(--green);border-radius:8px;padding:4px 12px;transform:rotate(-14deg);opacity:.85;mix-blend-mode:multiply;
+  box-shadow:inset 0 0 0 2px var(--paper),inset 0 0 0 4px var(--green)}
+
+/* ---------- App ---------- */
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:26px}
+.top h2{font-family:var(--serif);font-size:clamp(30px,5vw,46px);font-weight:900;letter-spacing:-.02em;margin:0;line-height:1}
+.top h2 em{color:var(--gold)}
+.top p{margin:8px 0 0;color:var(--muted)}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.stat .k{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.stat .v{font-family:var(--serif);font-size:clamp(26px,4vw,34px);font-weight:700;margin-top:4px}
+.stat:nth-child(1) .v{color:var(--gold)}
+@media(max-width:560px){.stats{gap:8px}.stat{padding:12px}.stat .k{font-size:10px}}
+
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:28px}
+.seg{display:inline-flex;padding:4px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;overflow-x:auto;max-width:100%}
+.seg button{background:transparent;color:var(--muted);padding:8px 16px;border-radius:999px;font-weight:600;font-size:13px;white-space:nowrap}
+.seg button.active{background:var(--text);color:var(--bg)}
+.search{flex:1;min-width:180px;max-width:320px;position:relative}
+.search input{width:100%;padding:10px 14px 10px 38px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);color:var(--text);font:inherit;font-size:14px}
+.search input:focus{outline:none;border-color:var(--gold)}
+.search svg{position:absolute;left:13px;top:50%;translate:0 -50%;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:34px 24px}
+@media(max-width:400px){.grid{grid-template-columns:1fr}}
+
+.receipt{background:var(--paper);color:var(--ink);border-radius:14px 14px 0 0;padding:20px 20px 22px;box-shadow:0 24px 50px -20px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s;animation:rise .4s both}
+.receipt:hover{transform:translateY(-4px);box-shadow:0 34px 60px -20px rgba(0,0,0,.55)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.who{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.av{width:34px;height:34px;border-radius:50%;flex:none;object-fit:cover;display:grid;place-items:center;font-weight:700;color:#fff;font-size:14px}
+.who .n{font-weight:600;font-size:14px;line-height:1.2}
+.who .t{font-size:12px;color:var(--ink2)}
+.pill{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px}
+.pill.open{background:#fdf0cf;color:#8a5d00}
+.pill.paid{background:#d9f2e5;color:#1d6b46}
+.thumb{position:relative;height:170px;border-radius:10px;overflow:hidden;background:#efe6d2;margin-bottom:14px;cursor:zoom-in}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.thumb:hover img{transform:scale(1.05)}
+.thumb .lbl{position:absolute;left:10px;bottom:10px;font-size:11px;font-weight:600;color:#fff;background:rgba(0,0,0,.55);padding:4px 8px;border-radius:6px;backdrop-filter:blur(4px)}
+.receipt h3{font-family:var(--serif);font-size:23px;font-weight:700;margin:0;letter-spacing:-.01em;line-height:1.2;word-break:break-word}
+.desc{font-size:14px;color:var(--ink2);margin:6px 0 0;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px dashed var(--rule);border-bottom:2px dashed var(--rule);margin:16px 0 14px;padding:12px 0;font-family:var(--mono)}
+.total .l{font-size:12px;letter-spacing:.14em;color:var(--ink2)}
+.total .a{font-size:26px;font-weight:700}
+.total .a small{font-size:13px;color:var(--ink2);margin-right:4px}
+.payopt{position:relative;font-family:var(--mono);font-size:12.5px;line-height:1.6;background:#f6efdd;border-radius:10px;padding:12px 44px 12px 12px;white-space:pre-wrap;word-break:break-word}
+.payopt .h{display:block;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-bottom:4px}
+.copy{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:8px;background:var(--paper);color:var(--ink);display:grid;place-items:center;border:1px solid var(--rule)}
+.copy:hover{border-color:var(--ink)}
+.paidby{font-size:13px;color:#1d6b46;margin-top:12px;font-weight:500}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:16px}
+.acts .btn{flex:1}
+.receipt .stamp{top:58px;right:18px;font-size:26px;z-index:2;background:rgba(255,250,240,.6)}
+
+.empty{grid-column:1/-1;text-align:center;padding:70px 20px;border:1px dashed var(--line);border-radius:20px;color:var(--muted)}
+.empty .e{font-size:44px}
+.empty h3{font-family:var(--serif);color:var(--text);font-size:24px;margin:10px 0 6px}
+
+.fab{position:fixed;right:20px;bottom:20px;z-index:9;display:none;width:58px;height:58px;padding:0;font-size:28px}
+@media(max-width:640px){.fab{display:inline-flex}.newtop{display:none}}
+
+/* ---------- Dialogs ---------- */
+dialog{border:0;padding:0;border-radius:22px;background:var(--paper);color:var(--ink);width:min(560px,94vw);max-height:92vh;box-shadow:0 40px 100px rgba(0,0,0,.5)}
+dialog[open]{animation:pop .22s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.98)}}
+dialog::backdrop{background:rgba(10,9,7,.7);backdrop-filter:blur(6px)}
+.dlg{padding:26px}
+.dlg h3{font-family:var(--serif);font-size:28px;font-weight:900;margin:0;letter-spacing:-.02em}
+.dlg .sub{color:var(--ink2);font-size:14px;margin:6px 0 4px}
+.dlg label{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin:16px 0 6px}
+.dlg input,.dlg textarea,.dlg select{width:100%;font:inherit;font-size:15px;padding:11px 13px;border:1.5px solid var(--rule);border-radius:12px;background:#fff;color:var(--ink)}
+.dlg input:focus,.dlg textarea:focus,.dlg select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(227,184,79,.2)}
+.dlg textarea{min-height:76px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 120px;gap:10px}
+.drop{position:relative;border:2px dashed var(--rule);border-radius:14px;padding:22px;text-align:center;background:#fff;cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--gold);background:#fffbef}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop .ic{font-size:28px}
+.drop .tx{font-size:14px;color:var(--ink2);margin-top:4px}
+.drop img{max-height:160px;max-width:100%;border-radius:10px;display:block;margin:0 auto}
+.err{color:var(--red);font-size:13px;margin-top:10px;min-height:18px}
+.foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.payamt{font-family:var(--mono);font-size:34px;font-weight:700;margin:14px 0 4px}
+#proofDlg{width:min(960px,96vw);background:transparent;box-shadow:none}
+#proofDlg img{max-width:100%;max-height:86vh;border-radius:14px;display:block;margin:0 auto;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+
+#toast{position:fixed;left:50%;bottom:28px;translate:-50% 0;z-index:30;background:var(--text);color:var(--bg);padding:12px 18px;border-radius:999px;font-weight:600;font-size:14px;
+  box-shadow:0 14px 40px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s,translate .2s}
+#toast.show{opacity:1;translate:-50% -6px}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🧾 Let Your Bills Paid by Billionaires</h1>
+  <div class="brand">
+    <div class="coin">$</div>
+    <h1>Let Your Bills Paid by <em>Billionaires</em></h1>
+  </div>
   <div class="user hidden" id="userBox">
-    <img id="avatar" alt="">
-    <span id="uname"></span>
-    <button class="ghost" id="logoutBtn">Logout</button>
+    <span class="nm" id="uname"></span>
+    <img id="avatar" alt="" referrerpolicy="no-referrer">
+    <button class="btn btn-ghost btn-sm" id="logoutBtn">Logout</button>
   </div>
 </header>
 
 <main>
-  <!-- Logged out -->
-  <section class="login" id="loginView">
-    <h2>Let Your Bills Paid by Billionaires</h2>
-    <p>Sign in with Google to see everyone's bills, upload your own with proof, or pay someone's bill.</p>
-    <button id="loginBtn">Continue with Google</button>
+  <!-- ======= Logged out ======= -->
+  <section class="hero" id="loginView">
+    <div>
+      <span class="eyebrow">✦ Wealth redistribution, one receipt at a time</span>
+      <h2>Your juice.<br>Your GPU.<br><span class="g">Their wallet.</span></h2>
+      <p>Post any bill (a coffee, a bus ticket, a new graphics card) with the receipt as proof. Generous people browse, pick one and pay it.</p>
+      <button class="btn btn-google" id="loginBtn">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+        Continue with Google
+      </button>
+      <div class="fine">Free to post. Free to pay. Billionaire status not verified.</div>
+      <div class="ticker">
+        <span>🥤 Juice <b>৳120</b></span><span>🎮 RTX 4070 <b>$549</b></span><span>🚌 Bus <b>৳60</b></span><span>☕ Latte <b>€4.20</b></span>
+      </div>
+    </div>
+    <div class="stack" aria-hidden="true">
+      <div class="mini zig float"><h4>Mango Juice</h4>Shop #12, Dhanmondi<br>1 × Large<div class="r"><span>TOTAL</span><span>৳120</span></div></div>
+      <div class="mini zig float"><h4>RTX 4070</h4>TechLand Store<br>1 × GPU<div class="r"><span>TOTAL</span><span>$549</span></div><div class="stamp" style="top:30px;right:10px;font-size:22px">Paid</div></div>
+      <div class="mini zig float"><h4>Bus Ticket</h4>Dhaka → Rajshahi<br>Seat B4<div class="r"><span>TOTAL</span><span>৳850</span></div></div>
+    </div>
   </section>
 
-  <!-- Logged in -->
+  <!-- ======= Logged in ======= -->
   <section class="hidden" id="appView">
-    <div class="toolbar">
-      <div class="tabs" id="tabs">
+    <div class="top">
+      <div>
+        <h2>The <em>Bill</em> Board</h2>
+        <p>Pick a bill. Make someone's day.</p>
+      </div>
+      <button class="btn btn-gold newtop" id="newBtn">＋ Post a bill</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Waiting</div><div class="v" id="sOpen">0</div></div>
+      <div class="stat"><div class="k">Paid off</div><div class="v" id="sPaid">0</div></div>
+      <div class="stat"><div class="k">Yours</div><div class="v" id="sMine">0</div></div>
+    </div>
+
+    <div class="bar">
+      <div class="seg" id="tabs">
         <button data-f="all" class="active">All</button>
         <button data-f="open">Unpaid</button>
         <button data-f="paid">Paid</button>
         <button data-f="mine">Mine</button>
       </div>
-      <button id="newBtn">+ Upload bill</button>
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" placeholder="Search bills…">
+      </div>
     </div>
-    <div id="list"></div>
+
+    <div class="grid" id="list"></div>
   </section>
 </main>
 
+<button class="btn btn-gold fab hidden" id="fab" aria-label="Post a bill">＋</button>
+
 <!-- Upload dialog -->
 <dialog id="billDlg">
-  <form id="billForm" method="dialog">
-    <h3 style="margin:0">Upload a bill</h3>
-    <label>Title</label>
-    <input name="title" required maxlength="100" placeholder="e.g. Orange juice, RTX 4070, Bus ticket">
+  <form id="billForm" method="dialog" class="dlg">
+    <h3>Post a bill</h3>
+    <div class="sub">Anything counts. Add a clear photo of the receipt.</div>
+    <label>What was it?</label>
+    <input name="title" required maxlength="100" placeholder="Orange juice, RTX 4070, bus ticket…">
     <div class="two">
-      <div><label>Amount</label><input name="amount" type="number" step="0.01" min="0.01" required></div>
+      <div><label>Amount</label><input name="amount" type="number" step="0.01" min="0.01" required placeholder="0.00"></div>
       <div><label>Currency</label>
         <select name="currency"><option>BDT</option><option>USD</option><option>EUR</option><option>GBP</option><option>INR</option></select>
       </div>
     </div>
-    <label>Description (optional)</label>
-    <textarea name="description" maxlength="1000"></textarea>
-    <label>Payment options (e.g. bKash 01XXXXXXXXX, Nagad, bank account, PayPal)</label>
-    <textarea name="paymentInfo" required maxlength="1000" placeholder="bKash (personal): 01XXXXXXXXX&#10;Bank: ..."></textarea>
-    <label>Proof (image only, auto-compressed)</label>
-    <input name="proof" type="file" accept="image/*" required>
+    <label>Story (optional)</label>
+    <textarea name="description" maxlength="1000" placeholder="Why should a billionaire pay this?"></textarea>
+    <label>How to pay you</label>
+    <textarea name="paymentInfo" required maxlength="1000" placeholder="bKash (personal): 01XXXXXXXXX&#10;Nagad: 01XXXXXXXXX&#10;PayPal: you@mail.com"></textarea>
+    <label>Proof</label>
+    <div class="drop" id="drop">
+      <input name="proof" id="proofInput" type="file" accept="image/*" required>
+      <div id="dropInner"><div class="ic">📸</div><div class="tx"><b>Click or drop</b> a photo of the receipt</div></div>
+    </div>
     <div class="err" id="billErr"></div>
     <div class="foot">
-      <button type="button" class="ghost" id="billCancel">Cancel</button>
-      <button type="submit" id="billSubmit">Post bill</button>
+      <button type="button" class="btn btn-line" id="billCancel">Cancel</button>
+      <button type="submit" class="btn btn-ink" id="billSubmit">Post bill</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Pay dialog -->
+<dialog id="payDlg">
+  <form id="payForm" method="dialog" class="dlg">
+    <h3>Be a billionaire</h3>
+    <div class="payamt" id="payAmt"></div>
+    <div class="sub" id="payInfo"></div>
+    <label>Transaction ID / reference (optional)</label>
+    <input name="txnRef" maxlength="100" placeholder="e.g. bKash TrxID">
+    <div class="err" id="payErr"></div>
+    <div class="foot">
+      <button type="button" class="btn btn-line" id="payCancel">Cancel</button>
+      <button type="submit" class="btn btn-gold" id="paySubmit">✓ I've paid it</button>
     </div>
   </form>
 </dialog>
 
 <!-- Proof viewer -->
-<dialog id="proofDlg" style="width:min(900px,96vw);text-align:center">
-  <img id="proofImg" alt="Proof" style="max-width:100%;max-height:80vh">
-  <p class="meta">Click anywhere to close</p>
-</dialog>
-
-<!-- Pay dialog -->
-<dialog id="payDlg">
-  <form id="payForm" method="dialog">
-    <h3 style="margin:0">Mark bill as paid</h3>
-    <p class="meta" id="payInfo"></p>
-    <label>Transaction ID / reference (optional)</label>
-    <input name="txnRef" maxlength="100" placeholder="e.g. bKash TrxID">
-    <div class="err" id="payErr"></div>
-    <div class="foot">
-      <button type="button" class="ghost" id="payCancel">Cancel</button>
-      <button type="submit" class="ok" id="paySubmit">I have paid</button>
-    </div>
-  </form>
-</dialog>
+<dialog id="proofDlg"><img id="proofImg" alt="Proof"></dialog>
 
 <div id="toast"></div>
 
@@ -139,7 +318,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/fireba
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-/* ====== 1. PASTE YOUR FIREBASE CONFIG HERE (Project settings → Your apps → Web) ====== */
 const firebaseConfig = {
   apiKey: "AIzaSyCfZb4ijpTKHBUSscGWFxxq1ljSSlx-OEQ",
   authDomain: "let-your-bills-paid.firebaseapp.com",
@@ -148,7 +326,6 @@ const firebaseConfig = {
   messagingSenderId: "775475113909",
   appId: "1:775475113909:web:9d491ce588e6f4271c73fc"
 };
-/* ================================================================================== */
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -156,14 +333,28 @@ const db = getFirestore(app);
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-const toast = m => { const t=$("toast"); t.textContent=m; t.style.display="block"; setTimeout(()=>t.style.display="none",3000); };
+let toastT;
+const toast = m => { const t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2800); };
+const SYM = { BDT:"৳", USD:"$", EUR:"€", GBP:"£", INR:"₹" };
+const COLORS = ["#c2410c","#0f766e","#7c3aed","#be123c","#1d4ed8","#a16207","#15803d"];
+const colorFor = s => COLORS[[...String(s)].reduce((a,c)=>a+c.charCodeAt(0),0) % COLORS.length];
+const ago = d => {
+  if (!d) return "just now";
+  const s = (Date.now() - d.getTime())/1000;
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s/60) + "m ago";
+  if (s < 86400) return Math.floor(s/3600) + "h ago";
+  if (s < 604800) return Math.floor(s/86400) + "d ago";
+  return d.toLocaleDateString();
+};
+const fmt = n => Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
 
-let user = null, bills = [], filter = "all", unsub = null, payingId = null;
+let user = null, bills = [], filter = "all", q = "", unsub = null, payingId = null;
 
 /* ---------- Auth ---------- */
 let signingIn = false;
 $("loginBtn").onclick = async () => {
-  if (signingIn) return;               // ignore double clicks (cause of cancelled-popup-request)
+  if (signingIn) return;
   signingIn = true; $("loginBtn").disabled = true;
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
@@ -181,9 +372,11 @@ onAuthStateChanged(auth, u => {
   $("loginView").classList.toggle("hidden", !!u);
   $("appView").classList.toggle("hidden", !u);
   $("userBox").classList.toggle("hidden", !u);
+  $("fab").classList.toggle("hidden", !u);
   if (unsub) { unsub(); unsub = null; }
   if (u) {
     $("avatar").src = u.photoURL || "";
+    $("avatar").classList.toggle("hidden", !u.photoURL);
     $("uname").textContent = u.displayName || u.email;
     unsub = onSnapshot(query(collection(db, "bills"), orderBy("createdAt", "desc")),
       snap => { bills = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); },
@@ -198,81 +391,106 @@ $("tabs").onclick = e => {
   [...$("tabs").children].forEach(x => x.classList.toggle("active", x === b));
   render();
 };
+$("q").oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
 
 function render() {
+  $("sOpen").textContent = bills.filter(b => b.status === "open").length;
+  $("sPaid").textContent = bills.filter(b => b.status === "paid").length;
+  $("sMine").textContent = bills.filter(b => b.ownerId === user?.uid).length;
+
   const list = bills.filter(b =>
-    filter === "all" ? true :
-    filter === "mine" ? b.ownerId === user?.uid :
-    b.status === filter);
+    (filter === "all" ? true : filter === "mine" ? b.ownerId === user?.uid : b.status === filter) &&
+    (!q || [b.title, b.description, b.ownerName].join(" ").toLowerCase().includes(q)));
+
   const el = $("list");
-  if (!list.length) { el.innerHTML = '<div class="empty">No bills here yet.</div>'; return; }
-  el.innerHTML = list.map(b => {
-    const mine = b.ownerId === user?.uid;
-    const date = b.createdAt?.toDate ? b.createdAt.toDate().toLocaleString() : "just now";
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><div class="e">🧾</div><h3>No bills here yet</h3><div>${filter === "mine" ? "Post your first bill and let fate decide." : "Try another filter, or post one yourself."}</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map((b, i) => {
+    const mine = b.ownerId === user?.uid, paid = b.status === "paid";
+    const date = b.createdAt?.toDate ? b.createdAt.toDate() : null;
+    const av = b.ownerPhoto
+      ? `<img class="av" src="${esc(b.ownerPhoto)}" alt="" referrerpolicy="no-referrer">`
+      : `<div class="av" style="background:${colorFor(b.ownerName)}">${esc((b.ownerName||"?")[0].toUpperCase())}</div>`;
     return `
-    <div class="card">
-      <div class="row">
-        <div>
-          <p class="title">${esc(b.title)}<span class="badge ${esc(b.status)}">${b.status === "paid" ? "Paid" : "Unpaid"}</span></p>
-          <div class="meta">by ${esc(b.ownerName)} · ${esc(date)}</div>
-        </div>
-        <div class="amount">${esc(b.currency)} ${Number(b.amount).toLocaleString()}</div>
+    <article class="receipt zig" style="animation-delay:${Math.min(i,10)*40}ms">
+      ${paid ? `<div class="stamp">Paid</div>` : ""}
+      <div class="who">${av}
+        <div><div class="n">${esc(b.ownerName)}${mine ? " · you" : ""}</div><div class="t">${esc(ago(date))}</div></div>
+        <span class="pill ${paid ? "paid" : "open"}">${paid ? "Paid" : "Unpaid"}</span>
       </div>
-      ${b.description ? `<div class="desc">${esc(b.description)}</div>` : ""}
-      <div class="pay"><b>Payment options</b>${esc(b.paymentInfo)}</div>
-      ${b.status === "paid" ? `<div class="meta">✅ Paid by ${esc(b.paidByName)}${b.txnRef ? " · Ref: " + esc(b.txnRef) : ""}</div>` : ""}
-      <div class="actions">
-        <button class="ghost" type="button" data-proof="${esc(b.id)}">View proof</button>
-        ${b.status === "open" && !mine ? `<button class="ok" data-pay="${esc(b.id)}">Pay this bill</button>` : ""}
-        ${mine ? `<button class="danger" data-del="${esc(b.id)}">Delete</button>` : ""}
+      ${b.proofData ? `<div class="thumb" data-proof="${esc(b.id)}"><img src="${esc(b.proofData)}" alt="Proof" loading="lazy"><span class="lbl">🔍 View proof</span></div>` : ""}
+      <h3>${esc(b.title)}</h3>
+      ${b.description ? `<p class="desc">${esc(b.description)}</p>` : ""}
+      <div class="total"><span class="l">TOTAL</span><span class="a"><small>${esc(b.currency)}</small>${esc(SYM[b.currency]||"")}${esc(fmt(b.amount))}</span></div>
+      <div class="payopt"><button class="copy" type="button" data-copy="${esc(b.id)}" title="Copy"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><span class="h">Pay via</span>${esc(b.paymentInfo)}</div>
+      ${paid ? `<div class="paidby">💸 Paid by <b>${esc(b.paidByName)}</b>${b.txnRef ? " · Ref " + esc(b.txnRef) : ""}</div>` : ""}
+      <div class="acts">
+        ${!paid && !mine ? `<button class="btn btn-gold" data-pay="${esc(b.id)}">Pay this bill</button>` : ""}
+        ${mine ? `<button class="btn btn-danger btn-sm" data-del="${esc(b.id)}">Delete</button>` : ""}
       </div>
-    </div>`;
+    </article>`;
   }).join("");
 }
 
 $("list").onclick = async e => {
-  const pay = e.target.closest("[data-pay]"), del = e.target.closest("[data-del]"), prf = e.target.closest("[data-proof]");
-  if (prf) {
-    const b = bills.find(x => x.id === prf.dataset.proof); if (!b) return;
-    $("proofImg").src = b.proofData; $("proofDlg").showModal();
+  const t = e.target;
+  const prf = t.closest("[data-proof]"), pay = t.closest("[data-pay]"), del = t.closest("[data-del]"), cp = t.closest("[data-copy]");
+  const find = id => bills.find(x => x.id === id);
+  if (prf) { const b = find(prf.dataset.proof); if (b) { $("proofImg").src = b.proofData; $("proofDlg").showModal(); } }
+  if (cp) {
+    const b = find(cp.dataset.copy);
+    try { await navigator.clipboard.writeText(b.paymentInfo); toast("Payment details copied"); } catch { toast("Copy failed"); }
   }
   if (pay) {
-    const b = bills.find(x => x.id === pay.dataset.pay); if (!b) return;
+    const b = find(pay.dataset.pay); if (!b) return;
     payingId = b.id;
-    $("payInfo").textContent = `Pay ${b.currency} ${b.amount} to ${b.ownerName} using the options on the bill, then confirm here.`;
+    $("payAmt").textContent = `${SYM[b.currency]||""}${fmt(b.amount)} ${b.currency}`;
+    $("payInfo").textContent = `Send it to ${b.ownerName} using the options on the bill, then confirm here.`;
     $("payForm").reset(); $("payErr").textContent = "";
     $("payDlg").showModal();
   }
   if (del) {
-    const b = bills.find(x => x.id === del.dataset.del);
+    const b = find(del.dataset.del);
     if (!b || !confirm("Delete this bill?")) return;
-    try {
-      await deleteDoc(doc(db, "bills", b.id));
-      toast("Deleted");
-    } catch (err) { toast(err.message); }
+    try { await deleteDoc(doc(db, "bills", b.id)); toast("Bill deleted"); }
+    catch (err) { toast(err.message); }
   }
 };
+$("proofDlg").onclick = () => $("proofDlg").close();
 
 /* ---------- Image compression (keeps doc < ~700 KB) ---------- */
 async function compress(file) {
   const bmp = await createImageBitmap(file);
-  let maxDim = 1400, q = 0.75;
+  let maxDim = 1400, qual = 0.75;
   for (let i = 0; i < 8; i++) {
     const s = Math.min(1, maxDim / Math.max(bmp.width, bmp.height));
     const c = document.createElement("canvas");
     c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
     c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
-    const url = c.toDataURL("image/jpeg", q);
+    const url = c.toDataURL("image/jpeg", qual);
     if (url.length < 700000) return url;
-    maxDim = Math.round(maxDim * 0.8); q = Math.max(0.4, q - 0.07);
+    maxDim = Math.round(maxDim * 0.8); qual = Math.max(0.4, qual - 0.07);
   }
   throw new Error("Image too large even after compression.");
 }
-$("proofDlg").onclick = () => $("proofDlg").close();
 
 /* ---------- Upload bill ---------- */
-$("newBtn").onclick = () => { $("billForm").reset(); $("billErr").textContent = ""; $("billDlg").showModal(); };
+const openNew = () => { $("billForm").reset(); resetDrop(); $("billErr").textContent = ""; $("billDlg").showModal(); };
+$("newBtn").onclick = openNew; $("fab").onclick = openNew;
 $("billCancel").onclick = () => $("billDlg").close();
+$("payCancel").onclick = () => $("payDlg").close();
+
+const dropInner = $("dropInner").innerHTML;
+const resetDrop = () => { $("dropInner").innerHTML = dropInner; };
+$("proofInput").onchange = e => {
+  const f = e.target.files[0];
+  if (!f || !f.type.startsWith("image/")) return resetDrop();
+  $("dropInner").innerHTML = `<img src="${URL.createObjectURL(f)}" alt=""><div class="tx">${esc(f.name)} · click to change</div>`;
+};
+["dragenter","dragover"].forEach(ev => $("drop").addEventListener(ev, () => $("drop").classList.add("over")));
+["dragleave","drop"].forEach(ev => $("drop").addEventListener(ev, () => $("drop").classList.remove("over")));
 
 $("billForm").onsubmit = async e => {
   e.preventDefault();
@@ -283,7 +501,7 @@ $("billForm").onsubmit = async e => {
   const amount = parseFloat(f.get("amount"));
   if (!(amount > 0)) return err.textContent = "Enter a valid amount.";
 
-  const btn = $("billSubmit"); btn.disabled = true; btn.textContent = "Uploading…";
+  const btn = $("billSubmit"); btn.disabled = true; btn.textContent = "Posting…";
   try {
     const proofData = await compress(file);
     await addDoc(collection(db, "bills"), {
@@ -295,16 +513,16 @@ $("billForm").onsubmit = async e => {
       proofData,
       ownerId: user.uid,
       ownerName: user.displayName || user.email,
+      ownerPhoto: user.photoURL || "",
       status: "open",
       createdAt: serverTimestamp()
     });
-    $("billDlg").close(); toast("Bill posted");
+    $("billDlg").close(); toast("Bill posted 🎉");
   } catch (ex) { err.textContent = ex.message; }
   btn.disabled = false; btn.textContent = "Post bill";
 };
 
 /* ---------- Pay bill ---------- */
-$("payCancel").onclick = () => $("payDlg").close();
 $("payForm").onsubmit = async e => {
   e.preventDefault();
   const btn = $("paySubmit"); btn.disabled = true;
@@ -316,7 +534,7 @@ $("payForm").onsubmit = async e => {
       paidAt: serverTimestamp(),
       txnRef: new FormData(e.target).get("txnRef").trim()
     });
-    $("payDlg").close(); toast("Marked as paid");
+    $("payDlg").close(); toast("You're a legend 💸");
   } catch (ex) { $("payErr").textContent = ex.message; }
   btn.disabled = false;
 };
