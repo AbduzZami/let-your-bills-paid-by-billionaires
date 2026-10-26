@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Let Your Bills Paid by Billionaires</title>
+<style>
+  :root{--bg:#f6f7fb;--card:#fff;--text:#1b1f2a;--muted:#6b7280;--line:#e5e7eb;--brand:#4f46e5;--ok:#16a34a;--warn:#d97706;--err:#dc2626}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f1117;--card:#181b24;--text:#e8eaf0;--muted:#9aa3b2;--line:#2a2f3c}}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+  header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  header h1{font-size:clamp(14px,4vw,20px);margin:0}
+  .user{display:flex;align-items:center;gap:10px;font-size:14px}
+  .user img{width:30px;height:30px;border-radius:50%}
+  main{max-width:860px;margin:0 auto;padding:20px}
+  button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:9px 14px;background:var(--brand);color:#fff}
+  button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+  button.danger{background:var(--err)}
+  button.ok{background:var(--ok)}
+  button:disabled{opacity:.6;cursor:not-allowed}
+  .login{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+  .login h2{font-size:30px;margin:0}
+  .login p{color:var(--muted);max-width:420px;margin:0}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .tabs{display:flex;gap:6px}
+  .tabs button{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .tabs button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+  .row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .title{font-weight:600;font-size:17px;margin:0 0 4px}
+  .meta{color:var(--muted);font-size:13px}
+  .amount{font-size:20px;font-weight:700;white-space:nowrap}
+  .badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;color:#fff;margin-left:6px;vertical-align:middle}
+  .badge.open{background:var(--warn)} .badge.paid{background:var(--ok)}
+  .desc{margin:10px 0;white-space:pre-wrap}
+  .pay{background:var(--bg);border:1px dashed var(--line);border-radius:8px;padding:10px;margin:10px 0;font-size:14px;white-space:pre-wrap}
+  .pay b{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .actions a{text-decoration:none}
+  .empty{text-align:center;color:var(--muted);padding:40px 0}
+  dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);width:min(520px,94vw);padding:20px}
+  dialog::backdrop{background:rgba(0,0,0,.5)}
+  label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
+  input,textarea,select{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text)}
+  textarea{min-height:70px;resize:vertical}
+  .two{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+  .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+  .err{color:var(--err);font-size:13px;margin-top:8px;min-height:16px}
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:8px;display:none;z-index:20}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧾 Let Your Bills Paid by Billionaires</h1>
+  <div class="user hidden" id="userBox">
+    <img id="avatar" alt="">
+    <span id="uname"></span>
+    <button class="ghost" id="logoutBtn">Logout</button>
+  </div>
+</header>
+
+<main>
+  <!-- Logged out -->
+  <section class="login" id="loginView">
+    <h2>Let Your Bills Paid by Billionaires</h2>
+    <p>Sign in with Google to see everyone's bills, upload your own with proof, or pay someone's bill.</p>
+    <button id="loginBtn">Continue with Google</button>
+  </section>
+
+  <!-- Logged in -->
+  <section class="hidden" id="appView">
+    <div class="toolbar">
+      <div class="tabs" id="tabs">
+        <button data-f="all" class="active">All</button>
+        <button data-f="open">Unpaid</button>
+        <button data-f="paid">Paid</button>
+        <button data-f="mine">Mine</button>
+      </div>
+      <button id="newBtn">+ Upload bill</button>
+    </div>
+    <div id="list"></div>
+  </section>
+</main>
+
+<!-- Upload dialog -->
+<dialog id="billDlg">
+  <form id="billForm" method="dialog">
+    <h3 style="margin:0">Upload a bill</h3>
+    <label>Title</label>
+    <input name="title" required maxlength="100" placeholder="e.g. Orange juice, RTX 4070, Bus ticket">
+    <div class="two">
+      <div><label>Amount</label><input name="amount" type="number" step="0.01" min="0.01" required></div>
+      <div><label>Currency</label>
+        <select name="currency"><option>BDT</option><option>USD</option><option>EUR</option><option>GBP</option><option>INR</option></select>
+      </div>
+    </div>
+    <label>Description (optional)</label>
+    <textarea name="description" maxlength="1000"></textarea>
+    <label>Payment options (e.g. bKash 01XXXXXXXXX, Nagad, bank account, PayPal)</label>
+    <textarea name="paymentInfo" required maxlength="1000" placeholder="bKash (personal): 01XXXXXXXXX&#10;Bank: ..."></textarea>
+    <label>Proof (image only, auto-compressed)</label>
+    <input name="proof" type="file" accept="image/*" required>
+    <div class="err" id="billErr"></div>
+    <div class="foot">
+      <button type="button" class="ghost" id="billCancel">Cancel</button>
+      <button type="submit" id="billSubmit">Post bill</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Proof viewer -->
+<dialog id="proofDlg" style="width:min(900px,96vw);text-align:center">
+  <img id="proofImg" alt="Proof" style="max-width:100%;max-height:80vh">
+  <p class="meta">Click anywhere to close</p>
+</dialog>
+
+<!-- Pay dialog -->
+<dialog id="payDlg">
+  <form id="payForm" method="dialog">
+    <h3 style="margin:0">Mark bill as paid</h3>
+    <p class="meta" id="payInfo"></p>
+    <label>Transaction ID / reference (optional)</label>
+    <input name="txnRef" maxlength="100" placeholder="e.g. bKash TrxID">
+    <div class="err" id="payErr"></div>
+    <div class="foot">
+      <button type="button" class="ghost" id="payCancel">Cancel</button>
+      <button type="submit" class="ok" id="paySubmit">I have paid</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+/* ====== 1. PASTE YOUR FIREBASE CONFIG HERE (Project settings → Your apps → Web) ====== */
+const firebaseConfig = {
+  apiKey: "AIzaSyCfZb4ijpTKHBUSscGWFxxq1ljSSlx-OEQ",
+  authDomain: "let-your-bills-paid.firebaseapp.com",
+  projectId: "let-your-bills-paid",
+  storageBucket: "let-your-bills-paid.firebasestorage.app",
+  messagingSenderId: "775475113909",
+  appId: "1:775475113909:web:9d491ce588e6f4271c73fc"
+};
+/* ================================================================================== */
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const toast = m => { const t=$("toast"); t.textContent=m; t.style.display="block"; setTimeout(()=>t.style.display="none",3000); };
+
+let user = null, bills = [], filter = "all", unsub = null, payingId = null;
+
+/* ---------- Auth ---------- */
+let signingIn = false;
+$("loginBtn").onclick = async () => {
+  if (signingIn) return;               // ignore double clicks (cause of cancelled-popup-request)
+  signingIn = true; $("loginBtn").disabled = true;
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+  try { await signInWithPopup(auth, provider); }
+  catch (e) {
+    if (e.code === "auth/popup-blocked") return signInWithRedirect(auth, provider);
+    if (e.code !== "auth/cancelled-popup-request" && e.code !== "auth/popup-closed-by-user") toast(e.code + ": " + e.message);
+  }
+  signingIn = false; $("loginBtn").disabled = false;
+};
+$("logoutBtn").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, u => {
+  user = u;
+  $("loginView").classList.toggle("hidden", !!u);
+  $("appView").classList.toggle("hidden", !u);
+  $("userBox").classList.toggle("hidden", !u);
+  if (unsub) { unsub(); unsub = null; }
+  if (u) {
+    $("avatar").src = u.photoURL || "";
+    $("uname").textContent = u.displayName || u.email;
+    unsub = onSnapshot(query(collection(db, "bills"), orderBy("createdAt", "desc")),
+      snap => { bills = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); },
+      err => toast("Load failed: " + err.message));
+  } else { bills = []; render(); }
+});
+
+/* ---------- Render ---------- */
+$("tabs").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  filter = b.dataset.f;
+  [...$("tabs").children].forEach(x => x.classList.toggle("active", x === b));
+  render();
+};
+
+function render() {
+  const list = bills.filter(b =>
+    filter === "all" ? true :
+    filter === "mine" ? b.ownerId === user?.uid :
+    b.status === filter);
+  const el = $("list");
+  if (!list.length) { el.innerHTML = '<div class="empty">No bills here yet.</div>'; return; }
+  el.innerHTML = list.map(b => {
+    const mine = b.ownerId === user?.uid;
+    const date = b.createdAt?.toDate ? b.createdAt.toDate().toLocaleString() : "just now";
+    return `
+    <div class="card">
+      <div class="row">
+        <div>
+          <p class="title">${esc(b.title)}<span class="badge ${esc(b.status)}">${b.status === "paid" ? "Paid" : "Unpaid"}</span></p>
+          <div class="meta">by ${esc(b.ownerName)} · ${esc(date)}</div>
+        </div>
+        <div class="amount">${esc(b.currency)} ${Number(b.amount).toLocaleString()}</div>
+      </div>
+      ${b.description ? `<div class="desc">${esc(b.description)}</div>` : ""}
+      <div class="pay"><b>Payment options</b>${esc(b.paymentInfo)}</div>
+      ${b.status === "paid" ? `<div class="meta">✅ Paid by ${esc(b.paidByName)}${b.txnRef ? " · Ref: " + esc(b.txnRef) : ""}</div>` : ""}
+      <div class="actions">
+        <button class="ghost" type="button" data-proof="${esc(b.id)}">View proof</button>
+        ${b.status === "open" && !mine ? `<button class="ok" data-pay="${esc(b.id)}">Pay this bill</button>` : ""}
+        ${mine ? `<button class="danger" data-del="${esc(b.id)}">Delete</button>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+$("list").onclick = async e => {
+  const pay = e.target.closest("[data-pay]"), del = e.target.closest("[data-del]"), prf = e.target.closest("[data-proof]");
+  if (prf) {
+    const b = bills.find(x => x.id === prf.dataset.proof); if (!b) return;
+    $("proofImg").src = b.proofData; $("proofDlg").showModal();
+  }
+  if (pay) {
+    const b = bills.find(x => x.id === pay.dataset.pay); if (!b) return;
+    payingId = b.id;
+    $("payInfo").textContent = `Pay ${b.currency} ${b.amount} to ${b.ownerName} using the options on the bill, then confirm here.`;
+    $("payForm").reset(); $("payErr").textContent = "";
+    $("payDlg").showModal();
+  }
+  if (del) {
+    const b = bills.find(x => x.id === del.dataset.del);
+    if (!b || !confirm("Delete this bill?")) return;
+    try {
+      await deleteDoc(doc(db, "bills", b.id));
+      toast("Deleted");
+    } catch (err) { toast(err.message); }
+  }
+};
+
+/* ---------- Image compression (keeps doc < ~700 KB) ---------- */
+async function compress(file) {
+  const bmp = await createImageBitmap(file);
+  let maxDim = 1400, q = 0.75;
+  for (let i = 0; i < 8; i++) {
+    const s = Math.min(1, maxDim / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    const url = c.toDataURL("image/jpeg", q);
+    if (url.length < 700000) return url;
+    maxDim = Math.round(maxDim * 0.8); q = Math.max(0.4, q - 0.07);
+  }
+  throw new Error("Image too large even after compression.");
+}
+$("proofDlg").onclick = () => $("proofDlg").close();
+
+/* ---------- Upload bill ---------- */
+$("newBtn").onclick = () => { $("billForm").reset(); $("billErr").textContent = ""; $("billDlg").showModal(); };
+$("billCancel").onclick = () => $("billDlg").close();
+
+$("billForm").onsubmit = async e => {
+  e.preventDefault();
+  const f = new FormData(e.target), file = f.get("proof"), err = $("billErr");
+  err.textContent = "";
+  if (!file || !file.size) return err.textContent = "Proof is required.";
+  if (!file.type.startsWith("image/")) return err.textContent = "Proof must be an image.";
+  const amount = parseFloat(f.get("amount"));
+  if (!(amount > 0)) return err.textContent = "Enter a valid amount.";
+
+  const btn = $("billSubmit"); btn.disabled = true; btn.textContent = "Uploading…";
+  try {
+    const proofData = await compress(file);
+    await addDoc(collection(db, "bills"), {
+      title: f.get("title").trim(),
+      amount,
+      currency: f.get("currency"),
+      description: f.get("description").trim(),
+      paymentInfo: f.get("paymentInfo").trim(),
+      proofData,
+      ownerId: user.uid,
+      ownerName: user.displayName || user.email,
+      status: "open",
+      createdAt: serverTimestamp()
+    });
+    $("billDlg").close(); toast("Bill posted");
+  } catch (ex) { err.textContent = ex.message; }
+  btn.disabled = false; btn.textContent = "Post bill";
+};
+
+/* ---------- Pay bill ---------- */
+$("payCancel").onclick = () => $("payDlg").close();
+$("payForm").onsubmit = async e => {
+  e.preventDefault();
+  const btn = $("paySubmit"); btn.disabled = true;
+  try {
+    await updateDoc(doc(db, "bills", payingId), {
+      status: "paid",
+      paidBy: user.uid,
+      paidByName: user.displayName || user.email,
+      paidAt: serverTimestamp(),
+      txnRef: new FormData(e.target).get("txnRef").trim()
+    });
+    $("payDlg").close(); toast("Marked as paid");
+  } catch (ex) { $("payErr").textContent = ex.message; }
+  btn.disabled = false;
+};
+</script>
+</body>
+</html>
